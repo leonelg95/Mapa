@@ -31,12 +31,14 @@ const Home = ({ correoUsuario }) => {
   return (
     <div>
       <div className='container'>
-        <h2 className='text-center'>Bienvenido {correoUsuario}</h2>
-        <button className='btnlogout' onClick={handleSignOut}>
+        <h2 className='text-center'>Bienvenido {correoUsuario}
+         <button className='btnlogout' onClick={handleSignOut}>
           Cerrar sesión
         </button>
+        </h2>
+      
      
-            <div className='map'>
+            <div className=''>
               <MapComponent/>
             </div>
      

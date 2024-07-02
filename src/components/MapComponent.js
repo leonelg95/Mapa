@@ -28,12 +28,15 @@ function MapComponent() {
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState(null);
   const [editMode, setEditMode] = useState(null); // Estado para el modo de edición
+  const [userLocation, setUserLocation] = useState(null); // Estado para la ubicación del usuario
+  const [geoError, setGeoError] = useState(null); // Estado para almacenar errores de geolocalización
 
   // Obtener la geolocalización del usuario al cargar el componente
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        setUserLocation([latitude, longitude]);
         setFormData({
           ...formData,
           lat: latitude,
@@ -41,7 +44,22 @@ function MapComponent() {
         });
       },
       (error) => {
+        let errorMessage = '';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Permission denied. Please allow location access.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Position unavailable. Please try again later.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Request timed out. Please try again.';
+            break;
+          default:
+            errorMessage = 'An unknown error occurred.';
+        }
         console.error('Error getting user location:', error);
+        setGeoError(errorMessage);
       }
     );
   }, []); // Solo se ejecuta una vez al cargar el componente
@@ -236,22 +254,22 @@ function MapComponent() {
     setShowPopup(false); // Ocultar el popup
     setPopupPosition(null);
     // Eliminar el marcador temporal
-    setMarkers(markers.filter(marker => marker.lat !== lat || marker.lng !== lng));
+    setMarkers(markers.filter(marker => !(marker.lat === lat && marker.lng === lng)));
   };
 
   return (
-    <MapContainer center={[formData.lat, formData.lng]} zoom={13} style={{ height: '80vh', width: '100%' }}>
+    <MapContainer center={userLocation || [-26.8084602, -65.2175701]} zoom={userLocation ? 13 : 15} style={{ height: '80vh', width: '100%' }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      {markers.map((marker, idx) => (
-        <Marker key={idx} position={[marker.lat, marker.lng]}>
+      {markers.map((marker, index) => (
+        <Marker key={index} position={[marker.lat, marker.lng]}>
           <Popup>
             {marker.isSaved ? (
               editMode === marker._id ? (
                 <form onSubmit={(e) => handleSaveUpdate(e, marker._id)}>
-                  <label>FEcha:</label>
+                  <label>Fecha:</label>
                   <input type="date" value={formData.date} onChange={handleDateChange} required />
                   <label>Hora:</label>
                   <input type="time" value={formData.time} onChange={handleTimeChange} required />
@@ -302,6 +320,11 @@ function MapComponent() {
         </Marker>
       )}
       <MapClickHandler />
+      {geoError && (
+        <div style={{ position: 'absolute', top: 0, left: 0, background: 'red', color: 'white', padding: '10px' }}>
+          Error getting location: {geoError}
+        </div>
+      )}
     </MapContainer>
   );
 }
