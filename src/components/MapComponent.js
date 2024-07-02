@@ -27,6 +27,24 @@ function MapComponent() {
   });
   const [showPopup, setShowPopup] = useState(false);
   const [popupPosition, setPopupPosition] = useState(null);
+  const [editMode, setEditMode] = useState(null); // Estado para el modo de edición
+
+  // Obtener la geolocalización del usuario al cargar el componente
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setFormData({
+          ...formData,
+          lat: latitude,
+          lng: longitude,
+        });
+      },
+      (error) => {
+        console.error('Error getting user location:', error);
+      }
+    );
+  }, []); // Solo se ejecuta una vez al cargar el componente
 
   // Cargar marcadores existentes al inicio
   useEffect(() => {
@@ -146,7 +164,23 @@ function MapComponent() {
   };
 
   // Función para manejar la actualización del marcador
-  const handleUpdateMarker = async (markerId) => {
+  const handleUpdateMarker = (marker) => {
+    setEditMode(marker._id); // Activar el modo de edición para el marcador seleccionado
+    setFormData({
+      lat: marker.lat,
+      lng: marker.lng,
+      date: marker.date,
+      time: marker.time,
+      description: marker.description,
+      image: null, // No cargamos una nueva imagen por defecto
+    });
+    setPopupPosition([marker.lat, marker.lng]);
+    setShowPopup(true);
+  };
+
+  const handleSaveUpdate = async (e, markerId) => {
+    e.preventDefault();
+
     const { lat, lng, image, date, time, description } = formData;
     const formDataToUpdate = new FormData();
     formDataToUpdate.append('lat', lat);
@@ -167,6 +201,9 @@ function MapComponent() {
         marker._id === markerId ? { ...response.data, isSaved: true } : marker
       );
       setMarkers(updatedMarkers);
+      setEditMode(null); // Salir del modo de edición
+      setShowPopup(false);
+      setPopupPosition(null);
     } catch (error) {
       console.error('Error updating marker:', error);
     }
@@ -203,7 +240,7 @@ function MapComponent() {
   };
 
   return (
-    <MapContainer center={[51.505, -0.09]} zoom={13} style={{ height: '100vh', width: '100%' }}>
+    <MapContainer center={[formData.lat, formData.lng]} zoom={13} style={{ height: '80vh', width: '100%' }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -212,38 +249,53 @@ function MapComponent() {
         <Marker key={idx} position={[marker.lat, marker.lng]}>
           <Popup>
             {marker.isSaved ? (
-              <div>
-                {marker.imageUrl && (
-                  <img src={`http://localhost:3000${marker.imageUrl}`} alt="Selected" style={{ width: '100px' }} />
-                )}
-                <p>Date: {marker.date}</p>
-                <p>Time: {marker.time}</p>
-                <p>Description: {marker.description}</p>
-                <button onClick={() => handleUpdateMarker(marker._id)}>Update</button>
-                <button onClick={() => handleDeleteMarker(marker._id)}>Delete</button>
-              </div>
+              editMode === marker._id ? (
+                <form onSubmit={(e) => handleSaveUpdate(e, marker._id)}>
+                  <label>FEcha:</label>
+                  <input type="date" value={formData.date} onChange={handleDateChange} required />
+                  <label>Hora:</label>
+                  <input type="time" value={formData.time} onChange={handleTimeChange} required />
+                  <label>Description:</label>
+                  <textarea value={formData.description} onChange={handleDescriptionChange} required />
+                  <div>
+                    <button type="submit">Guardar</button>
+                    <button type="button" onClick={handleCancel}>Cancelar</button>
+                  </div>
+                </form>
+              ) : (
+                <div>
+                  {marker.imageUrl && (
+                    <img src={`http://localhost:3000${marker.imageUrl}`} alt="Selected" style={{ width: '100px' }} />
+                  )}
+                  <p>Fecha: {marker.date}</p>
+                  <p>Hora: {marker.time}</p>
+                  <p>Description: {marker.description}</p>
+                  <button onClick={() => handleUpdateMarker(marker)}>Actualizar</button>
+                  <button onClick={() => handleDeleteMarker(marker._id)}>Borrar</button>
+                </div>
+              )
             ) : null}
           </Popup>
         </Marker>
       ))}
-      {showPopup && popupPosition && (
+      {showPopup && popupPosition && !editMode && (
         <Marker position={popupPosition}>
           <Popup>
             <div {...getRootProps()} style={{ border: '1px dashed gray', padding: '10px', textAlign: 'center' }}>
               <input {...getInputProps()} />
-              <p>Click to select an image</p>
-              <button type="button" onClick={open}>Open File Dialog</button>
+              <p>Seleccionar imagen</p>
+              <button type="button" onClick={open}>Seleccionar</button>
             </div>
             <form onSubmit={handleSubmit}>
-              <label>Date:</label>
+              <label>Fecha:</label>
               <input type="date" value={formData.date} onChange={handleDateChange} required />
-              <label>Time:</label>
+              <label>Hora:</label>
               <input type="time" value={formData.time} onChange={handleTimeChange} required />
               <label>Description:</label>
               <textarea value={formData.description} onChange={handleDescriptionChange} required />
               <div>
-                <button type="submit">Submit</button>
-                <button type="button" onClick={handleCancel}>Cancel</button>
+                <button type="submit">Subir</button>
+                <button type="button" onClick={handleCancel}>Cancelar</button>
               </div>
             </form>
           </Popup>
@@ -255,5 +307,3 @@ function MapComponent() {
 }
 
 export default MapComponent;
-
-

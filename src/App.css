@@ -1,38 +1,108 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.padre{
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+  height: 100%;
 
-.App-link {
-  color: #61dafb;
-}
+ }
+ 
+ 
+ .imagen-login{
+   border-radius: 50%;
+   height: 120px;
+   width: 120px;
+   margin: 0 auto;
+ margin-top: 20px;
+   margin-bottom: 20px;
+ }
+ 
+ 
+ .caja-texto {
+   background-color: #cccccc40;
+   border-color: slategray;
+   border-radius: 30px;
+   width: 100%;
+   padding: 15px;
+   border-width: 0px;
+   margin-bottom: 20px;
+ }
+ 
+ .caja-texto:focus{
+   outline: 1px solid cornflowerblue;
+   box-shadow: 0 0 15px cornflowerblue;
+ }
+ .btnform{
+ 
+   border-color: rgb(7, 116, 224);
+   border-radius: 30px;
+   width: 100%;
+   padding: 15px;
+   border-width: 0px;
+   margin-bottom: 20px;
+   color: rgb(0, 0, 1);
+ }
+ 
+ .btnform:hover{
+   background-color: rgb(143, 156, 180);
+ }
+ 
+ .textbtnform2{
+   margin-left: 80px;
+   font-size: 13px;
+   color: slategray;
+   font-family: Arial, Helvetica, sans-serif;
+   margin-top: 5px;
+ }
+ 
+ .btnform2{
+ 
+   border-color: rgb(7, 116, 224);
+   border-radius: 30px;
+   width: 30%;
+   padding: 4px;
+   border-width: 0px;
+   margin-top: 20px;
+   margin-left: 10px;
+   
+   color: rgb(0, 0, 1);
+   font-size: 10px;
+ }
+ 
+ .btnform2:hover{
+   background-color: rgb(143, 156, 180);
+ }
+ 
+ .col-md-4{
+   margin-left: 30%;
+   margin-top: 2%;
+ }
+ 
+ .text-center{
+ 
+   margin-left: 80px;
+   font-size: 15px;
+   color: slategray;
+   font-family: Arial, Helvetica, sans-serif;
+   margin-top: 5px;
+ }
+ 
+ .btnlogout{
+   border-color: rgb(7, 116, 224);
+   border-radius: 30px;
+   width: 10%;
+   padding: 4px;
+   border-width: 0px;
+   margin-top: 20px;
+   margin-left: 10px;
+   margin-bottom: 20px;
+   
+   color: rgb(0, 0, 1);
+   font-size: 10px;
+ }
+ btnlogout:hover{
+   background-color: rgb(143, 156, 180);
+ }
+ .map{
+ padding: 10px;
+ 
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }
